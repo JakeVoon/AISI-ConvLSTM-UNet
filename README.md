@@ -1,3 +1,10 @@
-README FILE
+# ConvLSTM_UNet
 
-Add instructions on how to load data and run the model on this md file.
+First, the 'wget' library needs to be installed using a bash terminal:
+'''
+pip install wget
+'''
+To download and extract the dataset, in a bash terminal do:
+'''
+python load_data.py
+'''
