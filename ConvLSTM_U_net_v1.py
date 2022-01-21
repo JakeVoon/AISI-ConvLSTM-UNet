@@ -6,8 +6,7 @@ from keras.optimizers import SGD
 from keras.optimizers import *
 from keras.layers import *
 import numpy as np
-import SimpleITK as sitk
-import nibabel as nib
+
 
 Params = {
     'img_row': 256,
@@ -111,5 +110,23 @@ def ConvLSTM_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.im
 
     model = Model(inputs, conv9)
     model.compile(optimizer = Adam(lr = Params.lr), loss = 'binary_crossentropy', metrics = ['accuracy'])    
+
+    # Example of how to use returned model in the main file
+    """
+    history = model.fit(X_train, y_train_cat, 
+                    batch_size = 16, 
+                    verbose=1, 
+                    epochs=50, 
+                    validation_data=(X_test, y_test_cat), 
+                    #class_weight=class_weights,
+                    shuffle=False)
+
+    model.save('test.hdf5')
+    #model.save('sandstone_50_epochs_catXentropy_acc_with_weights.hdf5')
+    ############################################################
+    #Evaluate the model
+    _, acc = model.evaluate(X_test, y_test_cat)
+    print("Accuracy is = ", (acc * 100.0), "%")
+    """
 
     return model
