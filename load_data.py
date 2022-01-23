@@ -42,8 +42,10 @@ def delete_zip():
 
 
 if __name__ == "__main__":
+    # check if directory exists
     path_Glenda = os.path.isdir('Glenda_v1.5_classes')
     path_pathology = os.path.isdir('no_pathology')
+    # if either one is not existed, dowwnload the file
     if (not path_Glenda) or (not path_pathology):
         download_zip()
         extract_zip()
