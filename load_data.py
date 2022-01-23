@@ -40,8 +40,7 @@ def delete_zip():
 
     print('Finished deleting!')
 
-
-if __name__ == "__main__":
+def data_loader():
     # check if directory exists
     path_Glenda = os.path.isdir('Glenda_v1.5_classes')
     path_pathology = os.path.isdir('no_pathology')
@@ -52,4 +51,8 @@ if __name__ == "__main__":
         delete_zip()
     else:
         print('file exists')
+
+if __name__ == "__main__":
+    data_loader()
+    
     
