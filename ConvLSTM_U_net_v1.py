@@ -7,7 +7,6 @@ from keras.optimizers import *
 from keras.layers import *
 import numpy as np
 
-
 Params = {
     'img_row': 256,
     'img_cols': 256,
