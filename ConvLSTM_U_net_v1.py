@@ -9,9 +9,9 @@ import numpy as np
 
 class Params():
     def __init__(self) -> None:
-        self.img_row = 256
-        self.img_cols = 256
-        self.img_depth = 10
+        self.img_row = 360
+        self.img_cols = 640
+        self.img_channel = 1
         self.lr = 1e-4
 
 

@@ -142,6 +142,7 @@ def data_loader(n_classes = 5):
     image = image/255 # making the value within the image from 0~1
     mask = np.expand_dims(mask, axis=3)
     x_train, x_test , x_valid, y_train, y_test, y_valid = split_data(image, mask)
+    
     return x_train, x_test , x_valid, y_train, y_test, y_valid
 
 if __name__ == "__main__":

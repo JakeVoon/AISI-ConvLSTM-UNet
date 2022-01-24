@@ -12,7 +12,7 @@ class Params():
     def __init__(self) -> None:
         self.img_row = 256
         self.img_cols = 256
-        self.img_depth = 10
+        self.img_channel = 1
         self.lr = 1e-4
 
 def Dense_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_channel)):
