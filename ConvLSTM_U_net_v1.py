@@ -7,13 +7,13 @@ from keras.optimizers import *
 from keras.layers import *
 import numpy as np
 
-Params = {
-    'img_row': 256,
-    'img_cols': 256,
-    'img_channel': 3,
-    'lr': 1e-4,
-    'filter_size': 64
-}
+class Params():
+    def __init__(self) -> None:
+        self.img_row = 256
+        self.img_cols = 256
+        self.img_depth = 10
+        self.lr = 1e-4
+
 
 def ConvLSTM_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_channel)):
     N = Params.row
