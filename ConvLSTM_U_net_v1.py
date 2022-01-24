@@ -1,24 +1,23 @@
 from keras.models import Model
 from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Reshape, Dropout
-from keras.optimizers import Adam
-from keras.utils.vis_utils import plot_model as plot
-from keras.optimizers import SGD
-from keras.optimizers import *
+from tensorflow.keras.optimizers import Adam
 from keras.layers import *
 import numpy as np
 
 class Params():
     def __init__(self) -> None:
-        self.img_row = 256
-        self.img_cols = 256
-        self.img_depth = 10
+        self.filter_size = 64
+        self.img_row = 360
+        self.img_cols = 640
+        self.img_channel = 1
         self.lr = 1e-4
 
+Params = Params()
 
-def ConvLSTM_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_channel)):
-    N = Params.row
+def ConvLSTM_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.img_cols, img_ch = Params.img_channel):
+    N = Params.img_row
     # Converting input to readable type
-    inputs = Input(input_size) 
+    inputs = Input((img_height, img_width, img_ch)) 
 
     ### DownSampling Path ###
 
