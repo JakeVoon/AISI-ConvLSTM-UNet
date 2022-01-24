@@ -1,70 +1,96 @@
 from keras.models import Model
 from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Dropout, UpSampling2D
-from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 from keras.utils.vis_utils import plot_model as plot
-from keras.optimizers import SGD
-from keras.optimizers import *
 from keras.layers import *
 import numpy as np
 
 
 class Params():
     def __init__(self) -> None:
-        self.img_row = 256
-        self.img_cols = 256
+        self.filter_size = 64
+        self.img_row = 360
+        self.img_cols = 640
         self.img_channel = 1
         self.lr = 1e-4
 
-def Dense_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_channel)):
-    N = Params.row
+Params = Params()
+
+def Dense_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.img_cols, img_ch = Params.img_channel):
+    N = Params.img_row
     # Converting input to readable type
-    inputs = Input(input_size) 
+    inputs = Input((img_height, img_width, img_ch)) 
 
     # Contracting Path (with max pooling)#
     # Dense block 1
     conv1_1 = Conv2D(Params.filter_size, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)
     conv1_2 = Conv2D(Params.filter_size, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1_1) 
-    drop1_2 = Dropout(0)(conv1_2)
+    print('block 1')
+    print(conv1_1.shape, conv1_2.shape)
+    drop1_2 = Dropout(0.5)(conv1_2)
+    print(drop1_2.shape)
     Merge1 = concatenate([conv1_1,drop1_2], axis = 3) # Saved for passing to the skipping connections
+    print(Merge1.shape)
     pool1 = MaxPooling2D(pool_size=(2, 2))(Merge1) # Passed to the next dense block
-
+    print(pool1.shape)
     # Dense block 2
     conv2_1 = Conv2D(Params.filter_size * 2, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool1)
     conv2_2 = Conv2D(Params.filter_size * 2, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv2_1)
-    drop2_2 = Dropout(0)(conv2_2)
+    drop2_2 = Dropout(0.5)(conv2_2)
     Merge2 = concatenate([conv2_1,drop2_2], axis = 3) # Saved for passing to the skipping connections
     pool2 = MaxPooling2D(pool_size=(2, 2))(Merge2) # Passed to the next dense block
-
+    print('block 2')
+    print(conv2_1.shape, conv2_2.shape)
+    print(drop2_2.shape)
+    print(Merge2.shape)
+    print(pool2.shape)
     # Dense block 3
     conv3_1 = Conv2D(Params.filter_size * 4, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool2)
     conv3_2 = Conv2D(Params.filter_size * 4, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv3_1)
-    drop3_2 = Dropout(0)(conv3_2)
+    drop3_2 = Dropout(0.5)(conv3_2)
     Merge3 = concatenate([conv3_1,drop3_2], axis = 3) # Saved for passing to the skipping connections
     pool3 = MaxPooling2D(pool_size=(2, 2))(Merge3) # Passed to the next dense block
+
+    print('block 3')
+    print(conv3_1.shape, conv3_2.shape)
+    print(drop3_2.shape)
+    print(Merge3.shape)
+    print(pool3.shape)
 
     # Dense block 4
     conv4_1 = Conv2D(Params.filter_size * 8, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool3)
     conv4_2 = Conv2D(Params.filter_size * 8, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv4_1)
-    drop4_2 = Dropout(0)(conv4_2)
+    drop4_2 = Dropout(0.5)(conv4_2)
     Merge4 = concatenate([conv4_1,drop4_2], axis = 3) # Saved for passing to the skipping connections
     pool4 = MaxPooling2D(pool_size=(2, 2))(Merge4) # Passed to the next dense block
+
+    print('block 4')
+    print(conv4_1.shape, conv4_2.shape)
+    print(drop4_2.shape)
+    print(Merge4.shape)
+    print(pool4.shape)
 
     # Final Dense block 5 with no max pooling, ready to feed to upsampling path
     conv5_1 = Conv2D(Params.filter_size * 16, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool4)
     conv5_2 = Conv2D(Params.filter_size * 16, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv5_1)
-    drop5_2 = Dropout(0)(conv5_2)
+    drop5_2 = Dropout(0.5)(conv5_2)
     Merge5 = concatenate([conv5_1,drop5_2], axis = 3) # Saved for passing to the skipping connections
+    print('block 5')
+    print(conv5_1.shape, conv5_2.shape)
+    print(drop5_2.shape)
+    print(Merge5.shape)
 
     # UpSampling Path #
 
     # Dense Up 1
     up6 = Conv2D(Params.filter_size * 8, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(Merge5))
+    print(up6.shape, Merge4.shape)
     Merge6 = concatenate([up6, Merge4], axis = 3)
     Merge6 = BatchNormalization(axis=3)(Merge6)
     Merge6 = Activation('relu')(Merge6)
     conv6_1 = Conv2D(Params.filter_size * 8, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge6)
     conv6_2 = Conv2D(Params.filter_size * 8, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge6)
-    drop6_2 = Dropout(0)(conv6_2)
+    drop6_2 = Dropout(0.5)(conv6_2)
     Merge6 = concatenate([conv6_1, drop6_2], axis = 3)
 
     # Dense Up 2
@@ -74,7 +100,7 @@ def Dense_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_c
     Merge7 = Activation('relu')(Merge7)
     conv7_1 = Conv2D(Params.filter_size * 4, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge7)
     conv7_2 = Conv2D(Params.filter_size * 4, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge7)
-    drop7_2 = Dropout(0)(conv7_2)
+    drop7_2 = Dropout(0.5)(conv7_2)
     Merge7 = concatenate([conv7_1, drop7_2], axis = 3)
 
     # Dense Up 3
@@ -84,7 +110,7 @@ def Dense_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_c
     Merge8 = Activation('relu')(Merge8)
     conv8_1 = Conv2D(Params.filter_size * 2, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge8)
     conv8_2 = Conv2D(Params.filter_size * 2, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge8)
-    drop8_2 = Dropout(0)(conv8_2)
+    drop8_2 = Dropout(0.5)(conv8_2)
     Merge8 = concatenate([conv8_1, drop8_2], axis = 3)
 
     # Dense Up 4
@@ -94,13 +120,13 @@ def Dense_U_net(n_class = 4, input_size = (Params.row, Params.cols, Params.img_c
     Merge9 = Activation('relu')(Merge9)
     conv9_1 = Conv2D(Params.filter_size, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge9)
     conv9_2 = Conv2D(Params.filter_size, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge9)
-    drop9_2 = Dropout(0)(conv9_2)
+    drop9_2 = Dropout(0.5)(conv9_2)
     Merge9 = concatenate([conv9_1, drop9_2], axis = 3)
 
     conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(Merge9)
     conv10 = Conv2D(n_class, 1, activation = 'softmax')(conv9)
 
-    model = Model(input = inputs, output = conv10)
+    model = Model(inputs, conv10)
 
     model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
             

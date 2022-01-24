@@ -8,6 +8,8 @@ import cv2
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from tensorflow.keras.utils import to_categorical
+
 
 def download_zip():
     print('Downloading zip files...')
@@ -63,6 +65,7 @@ def find_common_image_dim():
     return int(width), int(height)
 
 def extract_img_masks(width, height):
+    height = 400
     #Capture images 
     image = []
     mask = []
@@ -142,6 +145,10 @@ def data_loader(n_classes = 5):
     image = image/255 # making the value within the image from 0~1
     mask = np.expand_dims(mask, axis=3)
     x_train, x_test , x_valid, y_train, y_test, y_valid = split_data(image, mask)
+    # Before this, each pixel has a label of 0~4/ after to categorical, it would be come one-hot vector with length of n_classes
+    y_train = to_categorical(y_train, n_classes).reshape((y_train.shape[0], y_train.shape[1], y_train.shape[2], n_classes))
+    y_test = to_categorical(y_test, n_classes).reshape((y_test.shape[0], y_test.shape[1], y_test.shape[2], n_classes))
+    y_valid = to_categorical(y_valid, n_classes).reshape((y_valid.shape[0], y_valid.shape[1], y_valid.shape[2], n_classes))
     
     return x_train, x_test , x_valid, y_train, y_test, y_valid
 
