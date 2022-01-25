@@ -9,12 +9,12 @@ class Params():
         self.filter_size = 64
         self.img_row = 360
         self.img_cols = 640
-        self.img_channel = 1
+        self.img_channel = (3,3)
         self.lr = 1e-4
 
 Params = Params()
 
-def ConvLSTM_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.img_cols, img_ch = Params.img_channel):
+def ConvLSTM_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.img_cols, img_ch = 1):
     N = Params.img_row
     # Converting input to readable type
     inputs = Input((img_height, img_width, img_ch)) 
