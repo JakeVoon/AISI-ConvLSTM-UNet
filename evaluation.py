@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 
 def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     print('***************************************')
-    print('Segmentation with ' + name + 'model.')
+    print('Segmentation with ' + name + ' model.')
     print('***************************************')
     model.summary()
     history = model.fit(x_train, y_train, 
