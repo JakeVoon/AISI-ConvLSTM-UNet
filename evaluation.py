@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def run(model, name, x_train, y_train, x_test, y_test, x_valid, y_valid):
+def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     print('***************************************')
     print('Segmentation with ' + name + 'model.')
     print('***************************************')
@@ -30,25 +30,27 @@ def run(model, name, x_train, y_train, x_test, y_test, x_valid, y_valid):
     loss = history.history['loss']
     val_loss = history.history['val_loss']
     epochs = range(1, len(loss) + 1)
+    plt.figure(1)
     plt.plot(epochs, loss, 'y', label='Training loss')
     plt.plot(epochs, val_loss, 'r', label='Test loss')
     plt.title('Training and test loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.show()
+    # plt.show()
     plt.savefig('Loss of ' + name + '.png')
 
-    acc = history.history['acc']
-    val_acc = history.history['val_acc']
-
+    
+    val_acc = history.history['val_accuracy']
+    acc = history.history['accuracy']
+    plt.figure(2)
     plt.plot(epochs, acc, 'y', label='Training Accuracy')
     plt.plot(epochs, val_acc, 'r', label='Test Accuracy')
     plt.title('Training and test Accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.show()
+    # plt.show()
     plt.savefig('Accuracy of ' + name + '.png')
 
     #Use validation set to evaluate the performance
@@ -74,7 +76,7 @@ def run(model, name, x_train, y_train, x_test, y_test, x_valid, y_valid):
     class3_IoU = values[2,2]/(values[2,2] + values[2,0] + values[2,1] + values[2,3] + values[2,4] + values[0,2]+ values[1,2]+ values[3,2] + values[4,2])
     class4_IoU = values[3,3]/(values[3,3] + values[3,0] + values[3,1] + values[3,2] + values[3,4] + values[0,3]+ values[1,3]+ values[2,3] + values[4,3])
     class5_IoU = values[3,3]/(values[4,4] + values[4,0] + values[4,1] + values[4,2] + values[4,3] + values[0,4]+ values[1,4]+ values[2,4] + values[3,4])
-    IOU = [class1_IoU,class2_IoU,class3_IoU,class4_IoU,class5_IoU]
+    IoU = [class1_IoU,class2_IoU,class3_IoU,class4_IoU,class5_IoU]
 
     print("IoU for class1 is: ", class1_IoU)
     print("IoU for class2 is: ", class2_IoU)
@@ -82,7 +84,7 @@ def run(model, name, x_train, y_train, x_test, y_test, x_valid, y_valid):
     print("IoU for class4 is: ", class4_IoU)
     print("IoU for class5 is: ", class5_IoU)
 
-    return Acc_test, Acc_valid, mean_IOU, IOU
+    return Acc_test, Acc_valid, mean_IOU, IoU
 
 
 if __name__ == "__main__":
