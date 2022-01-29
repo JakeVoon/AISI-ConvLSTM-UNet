@@ -15,9 +15,9 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     print('***************************************')
     model.summary()
     history = model.fit(x_train, y_train, 
-                    batch_size =  2, 
-                    verbose=1, 
-                    epochs=50, 
+                    batch_size = 2, 
+                    verbose = 1, 
+                    epochs = 50, 
                     validation_data=(x_test, y_test), 
                     #class_weight=class_weights,
                     shuffle=False)
@@ -58,6 +58,7 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     Acc_valid = acc
     print("Validation accuracy is = ", (acc * 100.0), "%")
 
+    model.load_weights('test_' + name + '.hdf5') 
     y_pred=model.predict(x_valid)
     y_pred_argmax=np.argmax(y_pred, axis=3)
     
@@ -75,7 +76,7 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     class2_IoU = values[1,1]/(values[1,1] + values[1,0] + values[1,2] + values[1,3] + values[1,4] + values[0,1]+ values[2,1]+ values[3,1] + values[4,1])
     class3_IoU = values[2,2]/(values[2,2] + values[2,0] + values[2,1] + values[2,3] + values[2,4] + values[0,2]+ values[1,2]+ values[3,2] + values[4,2])
     class4_IoU = values[3,3]/(values[3,3] + values[3,0] + values[3,1] + values[3,2] + values[3,4] + values[0,3]+ values[1,3]+ values[2,3] + values[4,3])
-    class5_IoU = values[3,3]/(values[4,4] + values[4,0] + values[4,1] + values[4,2] + values[4,3] + values[0,4]+ values[1,4]+ values[2,4] + values[3,4])
+    class5_IoU = values[4,4]/(values[4,4] + values[4,0] + values[4,1] + values[4,2] + values[4,3] + values[0,4]+ values[1,4]+ values[2,4] + values[3,4])
     IoU = [class1_IoU,class2_IoU,class3_IoU,class4_IoU,class5_IoU]
 
     print("IoU for class1 is: ", class1_IoU)
