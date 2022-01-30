@@ -61,7 +61,6 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
      
     outputs = Conv2D(n_classes, (1, 1), activation='softmax')(c9)
      
-    model = Model(inputs=[inputs], outputs=[outputs])
-    model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])   
+    model = Model(inputs=[inputs], outputs=[outputs])   
     
     return model

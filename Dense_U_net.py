@@ -102,8 +102,6 @@ def Dense_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.img
     conv10 = Conv2D(n_class, 1, activation = 'softmax')(conv9)
 
     model = Model(inputs, conv10)
-
-    model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
             
     return model
 

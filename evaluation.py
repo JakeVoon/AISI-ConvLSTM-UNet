@@ -9,15 +9,17 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
+def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid, batch,epoch, class_weights, n_class):
     print('***************************************')
     print('Segmentation with ' + name + ' model.')
     print('***************************************')
+    model.compile(optimizer='adam', loss = 'categorical_crossentropy', metrics=['accuracy'], loss_weights=class_weights)
     model.summary()
+    print("training ",name)
     history = model.fit(x_train, y_train, 
-                    batch_size = 2, 
+                    batch_size = batch, 
                     verbose = 1, 
-                    epochs = 50, 
+                    epochs = epoch, 
                     validation_data=(x_test, y_test), 
                     #class_weight=class_weights,
                     shuffle=False)
@@ -61,10 +63,10 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     model.load_weights('test_' + name + '.hdf5') 
     y_pred=model.predict(x_valid)
     y_pred_argmax=np.argmax(y_pred, axis=3)
-    
+    y_valid_argmax=np.argmax(y_valid, axis=3)
     
     IOU_keras = MeanIoU(num_classes=n_class)  
-    IOU_keras.update_state(y_valid[:,:,:,0], y_pred_argmax)
+    IOU_keras.update_state(y_valid_argmax, y_pred_argmax)
     mean_IOU = IOU_keras.result().numpy()
     print("Mean IoU =", mean_IOU)
 
@@ -88,16 +90,13 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     return Acc_test, Acc_valid, mean_IOU, IoU
 
 
-if __name__ == "__main__":
-    print(device_lib.list_local_devices())
-    n_class = 5
-    x_train, x_test , x_valid, y_train, y_test, y_valid = data_loader(n_class)
-    _, height, width, channel = x_train.shape
+# if __name__ == "__main__":
+#     print(device_lib.list_local_devices())
+#     n_class = 5
+#     x_train, x_test , x_valid, y_train, y_test, y_valid, class_weights = data_loader(n_class)
+#     _, height, width, channel = x_train.shape
 
-    model_Unet = multi_unet_model(n_classes=n_class, IMG_HEIGHT=height, IMG_WIDTH= width, IMG_CHANNELS= channel)
-    # model_Dense_Unet = Dense_U_net(n_class=n_class, img_height=height, img_width= width, img_ch= channel)
-    # model_ConvLSTM_Unet = ConvLSTM_U_net(n_class=n_class, img_height=height, img_width= width, img_ch= channel)
-
-    Acc_test_Unet, Acc_valid_Unet, mean_IOU_Unet, IOU_Unet = run(model_Unet, 'Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
-    # Acc_test_Dense_Unet, Acc_valid_Dense_Unet, mean_IOU_Dense_Unet, IOU_Dense_Unet = run(model_Dense_Unet, 'Dense_Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
-    # Acc_test_ConvLSTM_Unet, Acc_valid_ConvLSTM_Unet, mean_IOU_ConvLSTM_Unet, IOU_ConvLSTM_Unet = run(model_ConvLSTM_Unet, 'ConvLSTM_Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
+#     model_Unet = multi_unet_model(n_classes=n_class, IMG_HEIGHT=height, IMG_WIDTH= width, IMG_CHANNELS= channel)
+#     model_Dense_Unet = Dense_U_net(n_class=n_class, img_height=height, img_width= width, img_ch= channel)
+#     Acc_test_Unet, Acc_valid_Unet, mean_IOU_Unet, IOU_Unet = run(model_Unet, 'Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
+#     Acc_test_Dense_Unet, Acc_valid_Dense_Unet, mean_IOU_Dense_Unet, IOU_Dense_Unet = run(model_Dense_Unet, 'Dense_Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
