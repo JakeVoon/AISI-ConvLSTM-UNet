@@ -68,109 +68,107 @@ def find_common_image_dim():
 
 
 
-# def extract_img_masks(width, height, size, step, thresh):
-#     #Capture images 
-#     all_image = []
-#     image = []
-#     mask = []
-#     """
-#     Images and masks are aligned in order so we do not have to use coco.json to find the corresponding annotations
-#     """
-#     # Extract all images, read it wwith colour scale and resize it -> convert to np.array
-#     for directory_path in glob.glob('Glenda_v1.5_classes/frames/'):
-#         path = glob.glob(os.path.join(directory_path, "*.jpg"))
-#         path.sort()
-#         id = path
-#         for img_path in path:
-#             img = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
-#             img = cv2.resize(img, (height,width)) # Resizing all images to the most common dimension
-#             all_image.append(img)
-#     all_image = np.array(all_image)
-
-#     # Extract all masks, read it wwith colour scale and resize it -> convert to np.array
-#     for directory_path in glob.glob('Glenda_v1.5_classes/annots/'):
-#         path = glob.glob(os.path.join(directory_path, "*.png"))
-#         path.sort()
-#         idx = 0
-#         for img_path in path:
-#             msk = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
-#             msk = cv2.resize(msk, (height,width)) # Resizing all images to the most common dimension
-#             # Use a size * size kernel to scann the image with the step length
-#             for i in range((width-size)//step):
-#                 for j in range((height-size)//step):
-#                     # Count the number of the pixel with 0 value
-#                     count_0 = 0
-#                     for m in range(i*step,(i*step+size)):
-#                         for n in range(j*step,(j*step+size)):
-#                             if msk[m,n] == 0:
-#                                 count_0+=1
-#                     # If the 0 color ranks less than threshold, save the area
-#                     if count_0/(size*size) <= thresh:
-#                         mask.append(msk[i*step:i*step+size, j*step:j*step+size])
-#                         image.append(all_image[idx, i*step:i*step+size, j*step:j*step+size])
-#             # mask.append(msk)
-#             idx += 1
-#     mask = np.array(mask)
-#     image = np.array(image)
-#     return image, mask, id
-
-
-
-
-def extract_img_masks(width, height):
-    height = 128
-    width = 128
+def extract_img_masks(width, height, size, step, thresh):
     #Capture images 
+    all_image = []
     image = []
     mask = []
     """
     Images and masks are aligned in order so we do not have to use coco.json to find the corresponding annotations
     """
     # Extract all images, read it wwith colour scale and resize it -> convert to np.array
-
     for directory_path in glob.glob('Glenda_v1.5_classes/frames/'):
         path = glob.glob(os.path.join(directory_path, "*.jpg"))
         path.sort()
-        id = path
         for img_path in path:
             img = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
-            img = cv2.resize(img, (height, width)) # Resizing all images to the most common dimension
-            # Enhance contrast
-            img = cv2.equalizeHist(img)
-            image.append(img)
-    image = np.array(image)
+            img = cv2.resize(img, (height,width)) # Resizing all images to the most common dimension
+            all_image.append(img)
+    all_image = np.array(all_image)
 
     # Extract all masks, read it wwith colour scale and resize it -> convert to np.array
     for directory_path in glob.glob('Glenda_v1.5_classes/annots/'):
         path = glob.glob(os.path.join(directory_path, "*.png"))
         path.sort()
+        idx = 0
         for img_path in path:
             msk = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
-            msk = cv2.resize(msk, (height, width)) # Resizing all images to the most common dimension
-            mask.append(msk)
+            msk = cv2.resize(msk, (height,width)) # Resizing all images to the most common dimension
+            # Use a size * size kernel to scann the image with the step length
+            for i in range((width-size)//step):
+                for j in range((height-size)//step):
+                    # Count the number of the pixel with 0 value
+                    count_0 = 0
+                    for m in range(i*step,(i*step+size)):
+                        for n in range(j*step,(j*step+size)):
+                            if msk[m,n] == 0:
+                                count_0+=1
+                    # If the 0 color ranks less than threshold, save the area
+                    if count_0/(size*size) <= thresh:
+                        mask.append(msk[i*step:i*step+size, j*step:j*step+size])
+                        image.append(all_image[idx, i*step:i*step+size, j*step:j*step+size])
+            # mask.append(msk)
+            idx += 1
     mask = np.array(mask)
+    image = np.array(image)
+    return image, mask
 
-    return image, mask, id
 
-def label_msk(mask, n_classes, id):
+
+
+# def extract_img_masks(width, height):
+#     height = 128
+#     width = 128
+#     #Capture images 
+#     image = []
+#     mask = []
+#     """
+#     Images and masks are aligned in order so we do not have to use coco.json to find the corresponding annotations
+#     """
+#     # Extract all images, read it wwith colour scale and resize it -> convert to np.array
+
+#     for directory_path in glob.glob('Glenda_v1.5_classes/frames/'):
+#         path = glob.glob(os.path.join(directory_path, "*.jpg"))
+#         path.sort()
+#         for img_path in path:
+#             img = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
+#             img = cv2.resize(img, (height, width)) # Resizing all images to the most common dimension
+#             # Enhance contrast
+#             img = cv2.equalizeHist(img)
+#             image.append(img)
+#     image = np.array(image)
+
+#     # Extract all masks, read it wwith colour scale and resize it -> convert to np.array
+#     for directory_path in glob.glob('Glenda_v1.5_classes/annots/'):
+#         path = glob.glob(os.path.join(directory_path, "*.png"))
+#         path.sort()
+#         for img_path in path:
+#             msk = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
+#             msk = cv2.resize(msk, (height, width)) # Resizing all images to the most common dimension
+#             mask.append(msk)
+#     mask = np.array(mask)
+
+#     return image, mask
+
+def label_msk(mask, n_classes):
     # mask have different color in the boundary making the pixel label not consistent, thus, by selecting the top n_classes
     # frequent color as the standard and eliminates all other color in the mask. 
-    color = [0]
-    mask_ID = ['Glenda_v1.5_classes/frames\\c_1_v_(video_17.mp4)_f_925.jpg', 'Glenda_v1.5_classes/frames\\c_1_v_(video_17.mp4)_f_1232.jpg', 'Glenda_v1.5_classes/frames\\c_7_v_(video_130.mp4)_f_1233.jpg', 'Glenda_v1.5_classes/frames\\c_8_v_(video_145.mp4)_f_496.jpg']
-    for idx in mask_ID:
-        i = id.index(idx)
-        plt.imshow(mask[i])
-        plt.title('{0:s}'.format(idx)) #Give this plot a title, 
-                                #so I know it's from matplotlib and not cv2
-        plt.show()
-        unique, counts = np.unique(mask[i], return_counts=True)
-        unique = np.delete(unique, 0)
-        counts = np.delete(counts, 0)
-        print(unique, counts)
-        i = np.argmax(counts)
-        color.append(unique[i])
+    # color = [0]
+    # mask_ID = ['Glenda_v1.5_classes/frames\\c_1_v_(video_17.mp4)_f_925.jpg', 'Glenda_v1.5_classes/frames\\c_1_v_(video_17.mp4)_f_1232.jpg', 'Glenda_v1.5_classes/frames\\c_7_v_(video_130.mp4)_f_1233.jpg', 'Glenda_v1.5_classes/frames\\c_8_v_(video_145.mp4)_f_496.jpg']
+    # for idx in mask_ID:
+    #     i = id.index(idx)
+    #     plt.imshow(mask[i])
+    #     plt.title('{0:s}'.format(idx)) #Give this plot a title, 
+    #                             #so I know it's from matplotlib and not cv2
+    #     plt.show()
+    #     unique, counts = np.unique(mask[i], return_counts=True)
+    #     unique = np.delete(unique, 0)
+    #     counts = np.delete(counts, 0)
+    #     print(unique, counts)
+    #     i = np.argmax(counts)
+    #     color.append(unique[i])
         
-
+    color = [0, 109, 116, 215, 182]
     num, height, width = mask.shape
     for n in range(num):
         for h in range(height):
@@ -212,8 +210,9 @@ def data_loader(n_classes = 5):
     
     # find most common image dimensions
     width, height= find_common_image_dim()
-    image, mask, id = extract_img_masks(width, height)
-    mask, class_weights = label_msk(mask, n_classes, id)
+    image, mask = extract_img_masks(width, height, 64, 2, 0.6)
+    # image, mask = extract_img_masks(width, height)
+    mask, class_weights = label_msk(mask, n_classes)
     image = np.expand_dims(image, axis=3) # expanding to fit the input of model
     image = image/255 # making the value within the image from 0~1
     mask = np.expand_dims(mask, axis=3)
