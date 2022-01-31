@@ -67,21 +67,8 @@ def find_common_image_dim():
     return int(width), int(height)
 
 
-# def get_color():
-#     for directory_path in glob.glob('Glenda_v1.5_classes/annots/'):
-#         for img_path in glob.glob(os.path.join(directory_path, "*.png")):
-#             print(img_path)
 
-
-# def extract_img_masks(width, height):
-#     # height = 64
-#     # width = 64
-#     # Define the output size
-#     size = 64
-#     # The step length of scanning 
-#     step = 16
-#     # Threshold for the proportion of background
-#     thresh = 0.5
+# def extract_img_masks(width, height, size, step, thresh):
 #     #Capture images 
 #     all_image = []
 #     image = []
@@ -91,7 +78,10 @@ def find_common_image_dim():
 #     """
 #     # Extract all images, read it wwith colour scale and resize it -> convert to np.array
 #     for directory_path in glob.glob('Glenda_v1.5_classes/frames/'):
-#         for img_path in glob.glob(os.path.join(directory_path, "*.jpg")):
+#         path = glob.glob(os.path.join(directory_path, "*.jpg"))
+#         path.sort()
+#         id = path
+#         for img_path in path:
 #             img = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
 #             img = cv2.resize(img, (height,width)) # Resizing all images to the most common dimension
 #             all_image.append(img)
@@ -99,11 +89,12 @@ def find_common_image_dim():
 
 #     # Extract all masks, read it wwith colour scale and resize it -> convert to np.array
 #     for directory_path in glob.glob('Glenda_v1.5_classes/annots/'):
+#         path = glob.glob(os.path.join(directory_path, "*.png"))
+#         path.sort()
 #         idx = 0
-#         for img_path in glob.glob(os.path.join(directory_path, "*.png")):
+#         for img_path in path:
 #             msk = cv2.imread(img_path, 0) # pass 0 for grayscale, in this case 1 for colour images       
 #             msk = cv2.resize(msk, (height,width)) # Resizing all images to the most common dimension
-#             #msk = cv2.cvtColor(msk, cv2.COLOR_BGR2RGB)
 #             # Use a size * size kernel to scann the image with the step length
 #             for i in range((width-size)//step):
 #                 for j in range((height-size)//step):
@@ -121,7 +112,7 @@ def find_common_image_dim():
 #             idx += 1
 #     mask = np.array(mask)
 #     image = np.array(image)
-#     return image, mask
+#     return image, mask, id
 
 
 

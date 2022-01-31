@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from evaluation import run
 
 if __name__ == "__main__":
-    # Uncomments the following lines if GPU is used
+    # Uncomment the following lines if GPU is used
     # config = tf.compat.v1.ConfigProto()
     # config.gpu_options.allow_growth = True
     print(device_lib.list_local_devices())
