@@ -1,5 +1,6 @@
 from cv2 import mean
-from load_data import data_loader
+#from load_data import data_loader
+from load_data_v1 import data_loader
 from ConvLSTM_U_net_v1 import ConvLSTM_U_net
 from Dense_U_net import Dense_U_net
 from Unet import multi_unet_model
@@ -9,15 +10,16 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
+def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid, class_weights):
     print('***************************************')
     print('Segmentation with ' + name + ' model.')
     print('***************************************')
+    model.compile(optimizer='adam', loss = 'categorical_crossentropy', metrics=['accuracy'], loss_weights=class_weights)
     model.summary()
     history = model.fit(x_train, y_train, 
-                    batch_size =  2, 
+                    batch_size = 12, 
                     verbose=1, 
-                    epochs=50, 
+                    epochs=1000, 
                     validation_data=(x_test, y_test), 
                     #class_weight=class_weights,
                     shuffle=False)
@@ -75,7 +77,7 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
     class2_IoU = values[1,1]/(values[1,1] + values[1,0] + values[1,2] + values[1,3] + values[1,4] + values[0,1]+ values[2,1]+ values[3,1] + values[4,1])
     class3_IoU = values[2,2]/(values[2,2] + values[2,0] + values[2,1] + values[2,3] + values[2,4] + values[0,2]+ values[1,2]+ values[3,2] + values[4,2])
     class4_IoU = values[3,3]/(values[3,3] + values[3,0] + values[3,1] + values[3,2] + values[3,4] + values[0,3]+ values[1,3]+ values[2,3] + values[4,3])
-    class5_IoU = values[3,3]/(values[4,4] + values[4,0] + values[4,1] + values[4,2] + values[4,3] + values[0,4]+ values[1,4]+ values[2,4] + values[3,4])
+    class5_IoU = values[4,4]/(values[4,4] + values[4,0] + values[4,1] + values[4,2] + values[4,3] + values[0,4]+ values[1,4]+ values[2,4] + values[3,4])
     IoU = [class1_IoU,class2_IoU,class3_IoU,class4_IoU,class5_IoU]
 
     print("IoU for class1 is: ", class1_IoU)
@@ -90,13 +92,13 @@ def run(model, name, x_train, x_test , x_valid, y_train, y_test, y_valid):
 if __name__ == "__main__":
     print(device_lib.list_local_devices())
     n_class = 5
-    x_train, x_test , x_valid, y_train, y_test, y_valid = data_loader(n_class)
+    x_train, x_test , x_valid, y_train, y_test, y_valid,class_weights = data_loader(n_class)
     _, height, width, channel = x_train.shape
 
     model_Unet = multi_unet_model(n_classes=n_class, IMG_HEIGHT=height, IMG_WIDTH= width, IMG_CHANNELS= channel)
     # model_Dense_Unet = Dense_U_net(n_class=n_class, img_height=height, img_width= width, img_ch= channel)
     # model_ConvLSTM_Unet = ConvLSTM_U_net(n_class=n_class, img_height=height, img_width= width, img_ch= channel)
 
-    Acc_test_Unet, Acc_valid_Unet, mean_IOU_Unet, IOU_Unet = run(model_Unet, 'Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
+    Acc_test_Unet, Acc_valid_Unet, mean_IOU_Unet, IOU_Unet = run(model_Unet, 'Unet', x_train, x_test , x_valid, y_train, y_test, y_valid,class_weights)
     # Acc_test_Dense_Unet, Acc_valid_Dense_Unet, mean_IOU_Dense_Unet, IOU_Dense_Unet = run(model_Dense_Unet, 'Dense_Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)
     # Acc_test_ConvLSTM_Unet, Acc_valid_ConvLSTM_Unet, mean_IOU_ConvLSTM_Unet, IOU_ConvLSTM_Unet = run(model_ConvLSTM_Unet, 'ConvLSTM_Unet', x_train, x_test , x_valid, y_train, y_test, y_valid)

@@ -4,13 +4,13 @@ from tensorflow.keras.optimizers import Adam
 from keras.utils.vis_utils import plot_model as plot
 from keras.layers import *
 import numpy as np
-
+import tensorflow as tf
 
 class Params():
     def __init__(self) -> None:
-        self.filter_size = 64
-        self.img_row = 360
-        self.img_cols = 640
+        self.filter_size = 16
+        self.img_row = 128
+        self.img_cols = 128
         self.img_channel = (3,3)
         self.lr = 1e-4
 
@@ -103,7 +103,7 @@ def Dense_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.img
 
     model = Model(inputs, conv10)
 
-    model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    #model.compile(optimizer = Adam(lr = Params.lr), loss = 'categorical_crossentropy', metrics = ['accuracy'])    
             
     return model
 

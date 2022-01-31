@@ -1,8 +1,9 @@
 from keras.models import Model
-from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Reshape, Dropout
+from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Reshape, Dropout, ConvLSTM2D
 from tensorflow.keras.optimizers import Adam
 from keras.layers import *
 import numpy as np
+import tensorflow as tf
 
 class Params():
     def __init__(self) -> None:
@@ -61,11 +62,13 @@ def ConvLSTM_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.
     up1 = Conv2DTranspose(Params.filter_size * 4, kernel_size=2, strides=2, padding='same',kernel_initializer = 'he_normal')(conv4_3)
     up1 = BatchNormalization(axis=3)(up1)
     up1 = Activation('relu')(up1)
-    
+
     # Concatenate corresponding layer with upsampling (up 1 -> drop3 last block at contracting path)
-    x1 = Reshape(target_shape=(1, np.int32(N/4), np.int32(N/4), Params.filter_size * 4))(conv3)
-    x2 = Reshape(target_shape=(1, np.int32(N/4), np.int32(N/4), Params.filter_size * 4))(up1)
-    merge1  = concatenate([x1,x2], axis = 1) 
+    #x1 = Reshape(target_shape=(1, conv3.shape[1], conv3.shape[0], Params.filter_size * 4))(conv3)
+    #x2 = Reshape(target_shape=(1, up1.shape[1], up1.shape[0], Params.filter_size * 4))(up1)
+    print(conv3.shape, up1.shape)
+    merge1  = concatenate([conv3,up1], axis = 1)
+    print(merge1.shape)
     merge1 = ConvLSTM2D(filters = Params.filter_size * 2, kernel_size=(3, 3), padding='same', return_sequences = False, go_backwards = True,kernel_initializer = 'he_normal' )(merge1)
 
     # Dense block 1 in upsampling path        
@@ -73,10 +76,10 @@ def ConvLSTM_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.
     conv6 = Conv2D(Params.filter_size * 4, Params.img_channel, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv6)
 
     # Upsample 2 with Conv2DTranspose
-    up2 = Conv2DTranspose(128, kernel_size=2, strides=2, padding='same',kernel_initializer = 'he_normal')(conv6)
+    up2 = Conv2DTranspose(Params.filter_size * 2, kernel_size=2, strides=2, padding='same',kernel_initializer = 'he_normal')(conv6)
     up2 = BatchNormalization(axis=3)(up2)
     up2 = Activation('relu')(up2)
-
+    
     # Concatenate corresponding layer with upsampling (up 2 -> conv2 2nd last block at contracting path)
     x1 = Reshape(target_shape=(1, np.int32(N/2), np.int32(N/2), Params.filter_size * 2))(conv2)
     x2 = Reshape(target_shape=(1, np.int32(N/2), np.int32(N/2), Params.filter_size * 2))(up2)
@@ -107,7 +110,7 @@ def ConvLSTM_U_net(n_class = 5, img_height = Params.img_row, img_width = Params.
     conv9 = Conv2D(n_class, 1, activation = 'softmax')(conv8)
 
     model = Model(inputs, conv9)
-    model.compile(optimizer = Adam(lr = Params.lr), loss = 'binary_crossentropy', metrics = ['accuracy'])    
+    model.compile(optimizer = Adam(lr = Params.lr), loss = 'categorical_crossentropy', metrics = ['accuracy'])    
 
     # Example of how to use returned model in the main file
     """
